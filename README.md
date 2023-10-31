@@ -1,1 +1,1 @@
-# 5-star-db
+# package-template
