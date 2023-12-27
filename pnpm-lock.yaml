@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+dependencies:
+  type-fest:
+    specifier: ^4.8.3
+    version: 4.8.3
+
 devDependencies:
   '@changesets/cli':
     specifier: latest
@@ -14,9 +19,6 @@ devDependencies:
   tsup:
     specifier: latest
     version: 7.2.0(typescript@5.3.3)
-  type-fest:
-    specifier: ^4.8.3
-    version: 4.8.3
   typedoc:
     specifier: ^0.25.4
     version: 0.25.4(typescript@5.3.3)
@@ -2664,7 +2666,7 @@ packages:
   /type-fest@4.8.3:
     resolution: {integrity: sha512-//BaTm14Q/gHBn09xlnKNqfI8t6bmdzx2DXYfPBNofN0WUybCEUDcbCWcTa0oF09lzLjZgPphXAsvRiMK0V6Bw==}
     engines: {node: '>=16'}
-    dev: true
+    dev: false
 
   /typed-array-buffer@1.0.0:
     resolution: {integrity: sha512-Y8KTSIglk9OZEr8zywiIHG/kmQ7KWyjseXs1CbSo8vC42w7hg2HgYTxSWwP0+is7bWDc1H+Fo026CpHFwm8tkw==}
