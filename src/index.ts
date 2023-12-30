@@ -1,2 +1,2 @@
-export * from "./recursiveTypes/index"
-export * from "./types"
+export type * from "./recursiveTypes/index"
+export type * from "./types"
