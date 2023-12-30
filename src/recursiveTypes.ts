@@ -40,7 +40,7 @@ type RecursiveObjectModification<
 	? Array<
 			RecursiveObjectModification<U, TCondition, TValue, TReplaceOrSpread>
 		>
-	: T extends NotRecursable
+	: T extends NativeObject
 		? T
 		: T extends Record<string, any>
 			? T extends TCondition
@@ -113,7 +113,7 @@ export type ReplaceValues<T, TCondition, TValue> = {
  * extends `Record<string, any>`. The type checks each sub-type of `T` against
  * this constraint. If a sub-type extends `TCondition`, it is included in the
  * resulting union. The type also traverses arrays and objects (except those
- * specified in `NotRecursable`) to check their elements or properties.
+ * specified in `NativeObject`) to check their elements or properties.
  *
  * @example
  * 	// Define a specific condition type
@@ -143,7 +143,7 @@ export type ReplaceValues<T, TCondition, TValue> = {
  * @typeParam TCondition - The condition type that sub-types of `T` must extend
  *   to be included in the resulting union. Must extend `Record<string, any>`.
  * @note
- * The type excludes non-recursable types specified in `NotRecursable`, like `Date`, `RegExp`, etc., to prevent irrelevant type inclusions.
+ * The type excludes non-recursable types specified in `NativeObject`, like `Date`, `RegExp`, etc., to prevent irrelevant type inclusions.
  */
 export type MatchObjectDeep<
 	T,
@@ -155,12 +155,75 @@ export type MatchObjectDeep<
 			? MatchObjectDeep<U, TCondition>
 			: never
 		: T extends Record<string, any>
-			? T extends NotRecursable
+			? T extends NativeObject
 				? T
 				: {
 						[K in keyof T]: MatchObjectDeep<T[K], TCondition>
 					}[keyof T]
 			: never
+
+type NonArrayObject<T> = T extends Array<any>
+	? never
+	: T extends Record<string, any>
+		? T extends NativeObject
+			? never
+			: T
+		: never
+
+type Unionify<T> = T extends NonArrayObject<T>
+	? T | UnionOfTreeProperties<T>
+	: never
+
+type UnionOfTreeProperties<T> = {
+	[K in keyof T]: T[K] extends Array<infer U> ? Unionify<U> : Unionify<T[K]>
+}[keyof T]
+
+type UnionOfTreePropertiesHandleArray<T> = T extends Array<infer U>
+	? UnionOfTreeProperties<U>
+	: T extends Record<string, any>
+		? UnionOfTreeProperties<T>
+		: never
+
+/**
+ * Produces a union type of all non-array object types found within a
+ * tree-like structure T.
+ *
+ * The `Flatten<T>` type recursively traverses the structure of T,
+ * extracting and combining the types of all properties that are
+ * non-array objects. This type is particularly useful for creating a
+ * comprehensive union of nested object types within a complex object
+ * structure. Native JavaScript objects (like Date, RegExp, etc.) and
+ * undefined values are excluded from the union. The traversal excludes
+ * arrays but will process the types contained within arrays.
+ *
+ * Note: Due to TypeScript's type system limitations, extremely deep or
+ * complex structures may lead to issues related to recursion depth and
+ * type complexity.
+ *
+ * @example
+ * 	// Given a type like this:
+ * 	interface Example {
+ * 		id: number
+ * 		name: string
+ * 		details: {
+ * 			age: number
+ * 			address: {
+ * 				city: string
+ * 				zip: number
+ * 			}
+ * 		}
+ * 		tags: string[]
+ * 	}
+ *
+ * 	// Using Flatten<Example> will result in a union of:
+ * 	// { id: number; name: string; details: { age: number; address: { city: string; zip: number; }; }; tags: string[]; }
+ * 	// | { age: number; address: { city: string; zip: number; }; }
+ * 	// | { city: string; zip: number; }
+ *
+ * @template T - The root type to be flattened.
+ * @returns A union type of all non-array object types found within T.
+ */
+export type Flatten<T> = Exclude<UnionOfTreePropertiesHandleArray<T>, undefined>
 
 /**
  * Recursively generates a type that mimics spreading object T with object
@@ -309,12 +372,12 @@ export type SpreadDeepWithinObject<
 }
 
 /**
- * NotRecursable Represents types that should not be subjected to recursive type
+ * NativeObject Represents types that should not be subjected to recursive type
  * operations.
  */
-type NotRecursable =
+type NativeObject =
 	| Date
-	| AnyFunction
+	| ((...args: any[]) => any)
 	| RegExp
 	| Error
 	| Buffer
