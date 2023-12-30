@@ -15,15 +15,15 @@ type UnionObjectProps<T extends Record<string, any>> = {
 
 /**
  * Creates a union type of all possible recursive child nodes (arrays and
- * objects) of an object type T. Does not recurse into native objects.
+ * objects) of an object type T. Also includes T itself if it is not an array or native object type. Does not recurse into native objects.
  */
 export type Flatten<T extends object> = (
 	T extends Array<infer U>
 		? U extends ObjectType<U>
-			? UnionObjectProps<U>
+			? UnionObjectProps<U> | U
 			: never
 		: T extends ObjectType<T>
-			? UnionObjectProps<T>
+			? UnionObjectProps<T> | T
 			: never
 ) extends infer V // https://stackoverflow.com/questions/73629302/how-to-improve-typescripts-performance-in-the-following-scenario
 	? Exclude<V, undefined>

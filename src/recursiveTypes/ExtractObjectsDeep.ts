@@ -10,10 +10,10 @@ type UnionObjectProps<T> = {
 export type ExtractObjectsDeep<T extends object> = (
 	T extends Array<infer U>
 		? U extends ObjectType<U>
-			? UnionObjectProps<U>
+			? UnionObjectProps<U> | U
 			: never
 		: T extends ObjectType<T>
-			? UnionObjectProps<T>
+			? UnionObjectProps<T> | T
 			: never
 ) extends infer V
 	? Exclude<V, undefined>
