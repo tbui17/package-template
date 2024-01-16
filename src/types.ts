@@ -58,3 +58,18 @@ export type UnionToPartialIntersection<T extends object> = UnionToIntersection<
 export type ExcludeNullable<T extends Record<string, any>> = {
 	[K in keyof T]: NonNullable<T[K]>
 }
+
+
+// https://github.com/type-challenges/type-challenges/issues/1140
+/**
+ * Checks if a type is a union type.
+ *
+ * @typeParam T - The type to check.
+ * @typeParam C - A candidate type that is a subtype of T.
+ * @returns `true` if the type is a union type, `false` otherwise.
+ */
+export type IsUnion<T, C extends T = T> = (
+	T extends T ? (C extends T ? true : unknown) : never
+) extends true
+	? false
+	: true
